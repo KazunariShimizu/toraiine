@@ -1,0 +1,10 @@
+name: toraiine
+version: '1.0-SNAPSHOT'
+main: com.toraden.toraiine.Toraiine
+api-version: '1.20'
+
+commands:
+  iinelist:
+    description: player command
+  iinetp:
+    description: player command
