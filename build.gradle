@@ -47,3 +47,14 @@ processResources {
         expand props
     }
 }
+
+// 新しいタスクを作成して、ビルド後にJARファイルを移動する
+tasks.register('copyJar', Copy) {
+    dependsOn build // 'build' タスクが完了した後に実行する
+    from 'build/libs'
+    include '*.jar'
+    into 'infra/minecraft_server/plugins/' // 移動先のディレクトリを指定
+}
+
+// 'build' タスクの後に 'copyJar' タスクを実行するように設定 (No candidate...が出ているが一旦無視）
+build.finalizedBy copyJar
