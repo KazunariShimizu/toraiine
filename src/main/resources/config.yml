@@ -1,4 +1,4 @@
-DATABASE_NAME : ""
-URL : "localhost"
-USER : ""
-PASS : ""
+DATABASE_NAME: "iine"
+URL: "localhost"
+USER: "root"
+PASS: "password"
