@@ -1,6 +1,6 @@
 name: toraiine
 version: '${version}'
-main: com.toraden.toraiine.Toraiine
+main: com.toraden.toraiine.ToraIine
 api-version: '1.20'
 
 commands:

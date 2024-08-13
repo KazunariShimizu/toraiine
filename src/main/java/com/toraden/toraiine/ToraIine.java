@@ -1,4 +1,5 @@
 package com.toraden.toraiine;
+
 import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -6,19 +7,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
-public final class Toraiine extends JavaPlugin {
+@SuppressWarnings("unused")
+public final class ToraIine extends JavaPlugin {
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        // もし設定ファイルがまだなければ、デフォルトの設定を保存する
-        saveDefaultConfig();
+        // もし設定ファイルがまだなければ、デフォルトの設定を保存
+        this.saveDefaultConfig();
         // 設定ファイルを読み込む
-        FileConfiguration conf=getConfig();
-        DataBase.DB_NAME = conf.getString("DATABASE_NAME");
-        DataBase.URL = conf.getString("URL");
-        DataBase.USER = conf.getString("USER");
-        DataBase.PASS = conf.getString("PASS");
+        FileConfiguration config = this.getConfig();
+
+        // 唯一1つだけ存在するDataBase instanceをここで生成しつつDB接続設定を渡す
+        DataBase.getInstance(config.getString("DATABASE_NAME"), config.getString("URL"),
+                config.getString("USER"), config.getString("PASS"));
+
         Server server = this.getServer();
         PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new SignPlace(), this);

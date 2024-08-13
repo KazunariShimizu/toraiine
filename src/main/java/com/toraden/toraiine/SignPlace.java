@@ -14,39 +14,26 @@ import java.util.Objects;
 
 public class SignPlace implements Listener {
     @EventHandler
-    public void PlacePoint(SignChangeEvent e){
-        Player player = e.getPlayer();
-        String player_name = e.getPlayer().getDisplayName();
+    public void PlacePoint(SignChangeEvent signChangeEvent) {
+        Player player = signChangeEvent.getPlayer();
+        String player_name = signChangeEvent.getPlayer().getDisplayName();
         String world_name = player.getWorld().getName();
-        Block block = e.getBlock();
+        Block block = signChangeEvent.getBlock();
         Location loc = block.getLocation();
 
+        String signString = signChangeEvent.getLine(0);
+        String titleString = signChangeEvent.getLine(1);
 
-        String signString = e.getLine(0);
-        String titleString = e.getLine(1);
-
-        if(Objects.requireNonNull(signString).contains("[iine]")) {
-            SaveCheckPoint(e,player,player_name,titleString,loc, world_name);
+        if (Objects.requireNonNull(signString).contains("[iine]")) {
+            SaveCheckPoint(signChangeEvent, player, player_name, titleString, loc, world_name);
         }
-
     }
-    public void SaveCheckPoint(SignChangeEvent e, Player player, String player_name, String titleString , Location location , String world_name){
 
-        String DATABASE_NAME = DataBase.DB_NAME;
-        String URL = "jdbc:mysql://"+DataBase.URL+"/%s".formatted(DATABASE_NAME);
-        //DB接続用・ユーザ定数
-        String USER = DataBase.USER;
-        String PASS = DataBase.PASS;
+    public void SaveCheckPoint(SignChangeEvent signChangeEvent, Player player, String player_name, String titleString, Location location, String world_name) {
 
-        Connection con = null;
-        Statement stmt = null;
+        DataBase dataBase = DataBase.getInstance(null, null, null, null);
+        Connection con = dataBase.getConnection();
         try {
-            //MySQL に接続する
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            //データベースに接続
-            con = DriverManager.getConnection(URL, USER, PASS);
-
-            //処理
             String sqlSelect = "SELECT * FROM iine where x = ? and y = ? and z = ? ;";
             PreparedStatement psSelect = con.prepareStatement(sqlSelect);
 
@@ -57,7 +44,7 @@ public class SignPlace implements Listener {
             // データベースに対する処理
             String sqlInsert = "INSERT INTO iine (user,world,title,x,y,z,iine,date) values (?,?,?,?,?,?,?,?);";
             PreparedStatement psInsert = con.prepareStatement(sqlInsert);
-            if(!rs.next()) {
+            if (!rs.next()) {
                 psInsert.setString(1, String.valueOf(player_name));
                 psInsert.setString(2, String.valueOf(world_name));
                 psInsert.setString(3, String.valueOf(titleString));
@@ -69,13 +56,13 @@ public class SignPlace implements Listener {
 
                 psInsert.execute();
                 player.sendMessage("イイネポイントを設置しました");
-                e.setLine(0,"[iine]");
-                e.setLine(1,ChatColor.BOLD + "★いいねしてね！★");
-                e.setLine(2,ChatColor.BOLD + titleString);
-                e.setLine(3,ChatColor.AQUA + "★イイネ!0");
+                signChangeEvent.setLine(0, "[iine]");
+                signChangeEvent.setLine(1, ChatColor.BOLD + "★いいねしてね！★");
+                signChangeEvent.setLine(2, ChatColor.BOLD + titleString);
+                signChangeEvent.setLine(3, ChatColor.AQUA + "★イイネ!0");
             }
-        } catch (SQLException | ClassNotFoundException error) {
-            error.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
