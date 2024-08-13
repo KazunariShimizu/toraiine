@@ -39,20 +39,9 @@ public class Commands implements CommandExecutor {
     }
 
     public void sendMessage(Player p, int id) {
-        String DATABASE_NAME = DataBase.DB_NAME;
-        String URL = "jdbc:mysql://" + DataBase.URL + "/%s".formatted(DATABASE_NAME);
-        //DB接続用・ユーザ定数
-        String USER = DataBase.USER;
-        String PASS = DataBase.PASS;
-
-        Connection con;
+        DataBase dataBase = DataBase.getInstance(null, null, null, null);
+        Connection con = dataBase.getConnection();
         try {
-            //MySQL に接続する
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            //データベースに接続
-            con = DriverManager.getConnection(URL, USER, PASS);
-
-            //処理
             String sqlSelect = "SELECT * FROM iine where id >= ? LIMIT 10;";
             PreparedStatement psSelect = con.prepareStatement(sqlSelect);
             psSelect.setInt(1, id);
@@ -67,26 +56,15 @@ public class Commands implements CommandExecutor {
             TextComponent message = new TextComponent("▼次へ");
             message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/iinelist " + endId));
             p.spigot().sendMessage(message);
-        } catch (SQLException | ClassNotFoundException error) {
-            error.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     public void teleport(Player p, int id) {
-        String DATABASE_NAME = DataBase.DB_NAME;
-        String URL = "jdbc:mysql://" + DataBase.URL + "/%s".formatted(DATABASE_NAME);
-        //DB接続用・ユーザ定数
-        String USER = DataBase.USER;
-        String PASS = DataBase.PASS;
-
-        Connection con;
+        DataBase dataBase = DataBase.getInstance(null, null, null, null);
+        Connection con = dataBase.getConnection();
         try {
-            //MySQL に接続する
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            //データベースに接続
-            con = DriverManager.getConnection(URL, USER, PASS);
-
-            //処理
             String sqlSelect = "SELECT * FROM iine Where id = ? ;";
             PreparedStatement psSelect = con.prepareStatement(sqlSelect);
             psSelect.setInt(1, id);
@@ -102,8 +80,8 @@ public class Commands implements CommandExecutor {
                 Location loc = new Location(w, x, y, z);
                 p.teleport(loc);
             }
-        } catch (SQLException | ClassNotFoundException error) {
-            error.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
