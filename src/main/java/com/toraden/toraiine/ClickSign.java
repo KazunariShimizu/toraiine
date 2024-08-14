@@ -23,7 +23,6 @@ public class ClickSign implements Listener {
         if (playerInteractEvent.getAction() == Action.LEFT_CLICK_BLOCK) {
             return;
         }
-        String world_name = player.getWorld().getName();
 
         // Playerが右クリックしたブロックのステート（状態）を取得
         BlockState blockState = Objects.requireNonNull(playerInteractEvent.getClickedBlock()).getState();
@@ -50,11 +49,9 @@ public class ClickSign implements Listener {
             statement.setInt(3, signBoardLocation.getBlockZ());
             ResultSet rs = statement.executeQuery();
 
-            // データベースに対する処理
-            String sqlUpdate = "UPDATE iine SET iine = ? where id = ?";
-            PreparedStatement psUpdate = con.prepareStatement(sqlUpdate);
+            PreparedStatement psUpdate = con.prepareStatement("UPDATE iine SET iine = ? where id = ?");
             if (rs.next()) {
-                if (world_name.equals(rs.getString("world"))) {
+                if (player.getWorld().getName().equals(rs.getString("world"))) {
                     player.sendMessage(ChatColor.BOLD + rs.getString("user") + "さんが立てた" + rs.getString("title") + "看板がありました!");
                     int iineOK = Integer.parseInt(rs.getString("iine")) + 1;
                     psUpdate.setString(1, String.valueOf(iineOK));
