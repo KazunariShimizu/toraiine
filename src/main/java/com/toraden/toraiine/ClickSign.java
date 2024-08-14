@@ -12,18 +12,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class ClickSign implements Listener {
-
     @EventHandler
     public void Iine(PlayerInteractEvent playerInteractEvent) {
-        Player player = playerInteractEvent.getPlayer();
-        if (playerInteractEvent.getAction() == Action.LEFT_CLICK_BLOCK) {
+        if (playerInteractEvent.getAction() == Action.LEFT_CLICK_BLOCK ||
+                playerInteractEvent.getAction() == Action.RIGHT_CLICK_AIR ||
+                playerInteractEvent.getAction() == Action.LEFT_CLICK_AIR) {
             return;
         }
-        String world_name = player.getWorld().getName();
 
         // Playerが右クリックしたブロックのステート（状態）を取得
         BlockState blockState = Objects.requireNonNull(playerInteractEvent.getClickedBlock()).getState();
@@ -50,27 +52,29 @@ public class ClickSign implements Listener {
             statement.setInt(3, signBoardLocation.getBlockZ());
             ResultSet rs = statement.executeQuery();
 
-            // データベースに対する処理
-            String sqlUpdate = "UPDATE iine SET iine = ? where id = ?";
-            PreparedStatement psUpdate = con.prepareStatement(sqlUpdate);
-            if (rs.next()) {
-                if (world_name.equals(rs.getString("world"))) {
-                    player.sendMessage(ChatColor.BOLD + rs.getString("user") + "さんが立てた" + rs.getString("title") + "看板がありました!");
-                    int iineOK = Integer.parseInt(rs.getString("iine")) + 1;
-                    psUpdate.setString(1, String.valueOf(iineOK));
-                    psUpdate.setString(2, rs.getString("id"));
-                    psUpdate.executeUpdate();
-                    frontSignSide.setLine(0, "[iine]");
-                    frontSignSide.setLine(1, ChatColor.BOLD + "★ID" + rs.getString("id"));
-                    frontSignSide.setLine(2, ChatColor.BOLD + rs.getString("title"));
-                    frontSignSide.setLine(3, ChatColor.AQUA + "★イイネ!" + iineOK);
-                    signBoard.update();
-                    player.sendMessage(ChatColor.BOLD + "iineしました!");
-                }
+            if (!rs.next()) {
+                return;
             }
+
+            doIine(signBoard, playerInteractEvent.getPlayer(), rs, con, frontSignSide);
             playerInteractEvent.setCancelled(true);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void doIine(Sign signBoard, Player player, ResultSet rs, Connection con, SignSide frontSignSide) throws SQLException {
+        player.sendMessage(ChatColor.BOLD + rs.getString("user") + "さんが立てた" +
+                rs.getString("title") + "看板がありました!");
+        int iineCount = Integer.parseInt(rs.getString("iine")) + 1;
+        PreparedStatement psUpdate = con.prepareStatement("UPDATE iine SET iine = ? where id = ?");
+        psUpdate.setInt(1, iineCount);
+        psUpdate.setInt(2, rs.getInt("id"));
+        psUpdate.executeUpdate();
+        frontSignSide.setLine(1, ChatColor.BOLD + "★ID" + rs.getString("id"));
+        frontSignSide.setLine(2, ChatColor.BOLD + rs.getString("title"));
+        frontSignSide.setLine(3, ChatColor.AQUA + "★イイネ!" + iineCount);
+        signBoard.update();
+        player.sendMessage(ChatColor.BOLD + "iineしました!");
     }
 }
