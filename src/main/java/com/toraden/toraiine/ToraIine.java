@@ -25,9 +25,9 @@ public final class ToraIine extends JavaPlugin {
         Server server = this.getServer();
         PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new SignPlace(), this);
+        pluginManager.registerEvents(new ClickSign(), this);
         Objects.requireNonNull(getCommand("iinelist")).setExecutor(new Commands());
         Objects.requireNonNull(getCommand("iinetp")).setExecutor(new Commands());
-        pluginManager.registerEvents(new ClickSign(), this);
         getLogger().info("toraiine 有効");
     }
 

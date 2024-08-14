@@ -11,75 +11,108 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
-
-import static org.bukkit.Bukkit.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 public class Commands implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("iinelist")) {
-            if (args.length != 0) {
-                int id = Integer.parseInt(args[0]);
-                Player p = (Player) sender;
-                sendMessage(p, id);
-            } else {
-                Player p = (Player) sender;
-                sendMessage(p, 0);
-            }
-        } else if (command.getName().equalsIgnoreCase("iinetp")) {
-            if (args.length != 0) {
-                int id = Integer.parseInt(args[0]);
-                Player p = (Player) sender;
-                teleport(p, id);
-            }
+        switch (command.getName().toLowerCase()) {
+            case "iinelist":
+                if (args.length >= 2) {
+                    sender.sendMessage("/iinelist 【番号】の形式で入力してください");
+                    sender.sendMessage("例: /iinelist 3");
+                    return false;
+                }
+
+                if (args.length == 1) {
+                    try {
+                        this.showIineList((Player)sender, Integer.parseInt(args[0]));
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        sender.sendMessage("/iinelist 【番号】の形式で入力してください");
+                        sender.sendMessage("例: /iinelist 3");
+                        return false;
+                    }
+                } else if (args.length == 0) {
+                    this.showIineList((Player) sender, 0);
+                }
+                break;
+            case "iinetp":
+                if (args.length != 1) {
+                    sender.sendMessage("/iinetp 【ID番号】の形式で入力してください");
+                    sender.sendMessage("例: /iinetp 3");
+                    return false;
+                }
+                try {
+                    this.teleport((Player)sender, Integer.parseInt(args[0]));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    sender.sendMessage("/iinetp 【番号】の形式で入力してください");
+                    sender.sendMessage("例: /iinetp 3");
+                    return false;
+                }
         }
-        return false;
+        // コマンド実行成功を意味する
+        return true;
     }
 
-    public void sendMessage(Player p, int id) {
+    /*
+     * Playerに「いいね」の一覧を表示する
+     * @param player 「いいね」の一覧を表示するPlayer
+     * @param id 「いいね」一覧の何番目から表示するか
+     */
+    public void showIineList(Player player, int id) {
         DataBase dataBase = DataBase.getInstance(null, null, null, null);
         Connection con = dataBase.getConnection();
         try {
-            String sqlSelect = "SELECT * FROM iine where id >= ? LIMIT 10;";
-            PreparedStatement psSelect = con.prepareStatement(sqlSelect);
-            psSelect.setInt(1, id);
-            ResultSet rs = psSelect.executeQuery();
-            // データベースに対する処理
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM iine WHERE id >= ? LIMIT 10;");
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
             int endId = 0;
             while (rs.next()) {
-                BaseComponent message = new TextComponent("ID" + rs.getString("id") + " " + rs.getString("user") + " " + rs.getString("title") + "★iine" + rs.getString("iine") + " " + rs.getString("x") + " " + rs.getString("y") + " " + rs.getString("z"));
-                p.spigot().sendMessage(message);
+                BaseComponent message = new TextComponent("ID" + rs.getString("id") +
+                        " " + rs.getString("user") + " " + rs.getString("title") +
+                        "★iine" + rs.getString("iine") + " " + rs.getString("x") +
+                        " " + rs.getString("y") + " " + rs.getString("z"));
+                player.spigot().sendMessage(message);
                 endId = Integer.parseInt(rs.getString("id"));
             }
             TextComponent message = new TextComponent("▼次へ");
             message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/iinelist " + endId));
-            p.spigot().sendMessage(message);
+            player.spigot().sendMessage(message);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void teleport(Player p, int id) {
+    public void teleport(Player player, int id) {
         DataBase dataBase = DataBase.getInstance(null, null, null, null);
         Connection con = dataBase.getConnection();
         try {
-            String sqlSelect = "SELECT * FROM iine Where id = ? ;";
-            PreparedStatement psSelect = con.prepareStatement(sqlSelect);
+            PreparedStatement psSelect = con.prepareStatement("SELECT * FROM iine WHERE id = ?");
             psSelect.setInt(1, id);
             ResultSet rs = psSelect.executeQuery();
-            // データベースに対する処理
-            if (rs.next()) {
-                int x = Integer.parseInt(rs.getString("x"));
-                int y = Integer.parseInt(rs.getString("y"));
-                int z = Integer.parseInt(rs.getString("z"));
-                World w = getServer().getWorld(rs.getString("world"));
-                BaseComponent message = new TextComponent("ID" + rs.getString("id") + " " + rs.getString("user") + " " + rs.getString("title") + " " + rs.getString("x") + " " + rs.getString("y") + " " + rs.getString("z") + " に到着！");
-                p.spigot().sendMessage(message);
-                Location loc = new Location(w, x, y, z);
-                p.teleport(loc);
+
+            if (!rs.next()) {
+                player.sendMessage("テレポートに失敗しました");
+                return;
             }
+
+            int x = Integer.parseInt(rs.getString("x"));
+            int y = Integer.parseInt(rs.getString("y"));
+            int z = Integer.parseInt(rs.getString("z"));
+            World world = org.bukkit.Bukkit.getServer().getWorld(rs.getString("world"));
+            BaseComponent message = new TextComponent("ID" + rs.getString("id") + " " +
+                    rs.getString("user") + " " + rs.getString("title") + " " +
+                    rs.getString("x") + " " + rs.getString("y") + " " +
+                    rs.getString("z") + " に到着！");
+            player.spigot().sendMessage(message);
+            Location loc = new Location(world, x, y, z);
+            player.teleport(loc);
         } catch (SQLException e) {
             e.printStackTrace();
         }

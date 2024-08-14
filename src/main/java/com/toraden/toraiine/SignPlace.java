@@ -16,51 +16,54 @@ public class SignPlace implements Listener {
     @EventHandler
     public void PlacePoint(SignChangeEvent signChangeEvent) {
         Player player = signChangeEvent.getPlayer();
-        String player_name = signChangeEvent.getPlayer().getDisplayName();
-        String world_name = player.getWorld().getName();
-        Block block = signChangeEvent.getBlock();
-        Location loc = block.getLocation();
+        String playerName = player.getDisplayName();
+        String worldName = player.getWorld().getName();
+        Location location = signChangeEvent.getBlock().getLocation();
 
         String signString = signChangeEvent.getLine(0);
         String titleString = signChangeEvent.getLine(1);
 
-        if (Objects.requireNonNull(signString).contains("[iine]")) {
-            SaveCheckPoint(signChangeEvent, player, player_name, titleString, loc, world_name);
+        if (Objects.requireNonNull(signString).equals("[iine]")) {
+            this.SaveCheckPoint(signChangeEvent);
         }
     }
 
-    public void SaveCheckPoint(SignChangeEvent signChangeEvent, Player player, String player_name, String titleString, Location location, String world_name) {
-
+    public void SaveCheckPoint(SignChangeEvent signChangeEvent) {
         DataBase dataBase = DataBase.getInstance(null, null, null, null);
         Connection con = dataBase.getConnection();
         try {
-            String sqlSelect = "SELECT * FROM iine where x = ? and y = ? and z = ? ;";
-            PreparedStatement psSelect = con.prepareStatement(sqlSelect);
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM iine WHERE x = ? AND y = ? AND z = ?");
 
-            psSelect.setInt(1, location.getBlockX());
-            psSelect.setInt(2, location.getBlockY());
-            psSelect.setInt(3, location.getBlockZ());
-            ResultSet rs = psSelect.executeQuery();
-            // データベースに対する処理
-            String sqlInsert = "INSERT INTO iine (user,world,title,x,y,z,iine,date) values (?,?,?,?,?,?,?,?);";
-            PreparedStatement psInsert = con.prepareStatement(sqlInsert);
-            if (!rs.next()) {
-                psInsert.setString(1, String.valueOf(player_name));
-                psInsert.setString(2, String.valueOf(world_name));
-                psInsert.setString(3, String.valueOf(titleString));
-                psInsert.setInt(4, location.getBlockX());
-                psInsert.setInt(5, location.getBlockY());
-                psInsert.setInt(6, location.getBlockZ());
-                psInsert.setInt(7, 0);
-                psInsert.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+            statement.setInt(1, signChangeEvent.getBlock().getLocation().getBlockX());
+            statement.setInt(2, signChangeEvent.getBlock().getLocation().getBlockY());
+            statement.setInt(3, signChangeEvent.getBlock().getLocation().getBlockZ());
+            ResultSet rs = statement.executeQuery();
 
-                psInsert.execute();
-                player.sendMessage("イイネポイントを設置しました");
-                signChangeEvent.setLine(0, "[iine]");
-                signChangeEvent.setLine(1, ChatColor.BOLD + "★いいねしてね！★");
-                signChangeEvent.setLine(2, ChatColor.BOLD + titleString);
-                signChangeEvent.setLine(3, ChatColor.AQUA + "★イイネ!0");
+            if (rs.next()) {
+                // 既にレコードが存在するならINSERTしない
+                return;
             }
+            PreparedStatement psInsert = con.prepareStatement(
+                    "INSERT INTO iine (user, world, title, x, y, z, iine, date) values (?, ?, ?, ?, ?, ?, ?, ?)");
+            psInsert.setString(1, signChangeEvent.getPlayer().getDisplayName());
+            psInsert.setString(2, signChangeEvent.getPlayer().getWorld().getName());
+
+            // 説明変数: getLine(1)じゃ何なのか分からないので変数名で何かを明示する
+            String title = signChangeEvent.getLine(1);
+
+            psInsert.setString(3, title);
+            psInsert.setInt(4, signChangeEvent.getBlock().getLocation().getBlockX());
+            psInsert.setInt(5, signChangeEvent.getBlock().getLocation().getBlockY());
+            psInsert.setInt(6, signChangeEvent.getBlock().getLocation().getBlockZ());
+            psInsert.setInt(7, 0);
+            psInsert.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+
+            psInsert.execute();
+            signChangeEvent.getPlayer().sendMessage("イイネポイントを設置しました");
+            signChangeEvent.setLine(0, "[iine]");
+            signChangeEvent.setLine(1, ChatColor.BOLD + "★いいねしてね！★");
+            signChangeEvent.setLine(2, ChatColor.BOLD + title);
+            signChangeEvent.setLine(3, ChatColor.AQUA + "★イイネ!0");
         } catch (SQLException e) {
             e.printStackTrace();
         }
