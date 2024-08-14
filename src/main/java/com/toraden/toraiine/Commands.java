@@ -37,7 +37,7 @@ public class Commands implements CommandExecutor {
                         sender.sendMessage("例: /iinelist 3");
                         return false;
                     }
-                } else if (args.length == 0) {
+                } else {
                     this.showIineList((Player) sender, 0);
                 }
                 break;
