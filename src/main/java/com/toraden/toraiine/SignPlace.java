@@ -1,10 +1,6 @@
 package com.toraden.toraiine;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
@@ -15,14 +11,7 @@ import java.util.Objects;
 public class SignPlace implements Listener {
     @EventHandler
     public void PlacePoint(SignChangeEvent signChangeEvent) {
-        Player player = signChangeEvent.getPlayer();
-        String playerName = player.getDisplayName();
-        String worldName = player.getWorld().getName();
-        Location location = signChangeEvent.getBlock().getLocation();
-
         String signString = signChangeEvent.getLine(0);
-        String titleString = signChangeEvent.getLine(1);
-
         if (Objects.requireNonNull(signString).equals("[iine]")) {
             this.SaveCheckPoint(signChangeEvent);
         }
