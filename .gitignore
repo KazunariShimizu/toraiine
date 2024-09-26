@@ -4,7 +4,7 @@ build/
 .DS_Store
 
 infra/minecraft_server/*
-!infra/minecraft_server/paper-1.20.6-148.jar
+!infra/minecraft_server/paper-1.21.1-99.jar
 !infra/minecraft_server/server.jar
 !infra/minecraft_server/spigot.yml
 !infra/minecraft_server/eula.txt
