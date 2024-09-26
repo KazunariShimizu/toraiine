@@ -1,0 +1,4 @@
+DATABASE_NAME: "iine"
+URL: "localhost"
+USER: "root"
+PASS: "password"
