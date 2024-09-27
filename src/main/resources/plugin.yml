@@ -8,3 +8,5 @@ commands:
     description: player command
   iinetp:
     description: player command
+  deliine:
+    description: player command
