@@ -60,3 +60,22 @@ Debug実行は[公式の情報](https://docs.papermc.io/paper/dev/debugging)を�
 cd infra/minecraft_server
 ./start.sh
 ```
+
+## 使用方法
+
+papermcの使用を前提とする。
+plugins フォルダーにjarを入れて起動する。
+
+ゲーム内で看板の
+一行目に[iine]
+に行目にメッセージを入力する。
+設置するだけでiine看板が出来上がる。
+
+ゲーム内で看板に右クリックでイイネの回数が増加する。
+
+#### コマンド
+
+/iinelist 数字　イイネ看板ののリストが表示される。
+/iinetp 数字　IDの数字を入力するとそこにTPされる。
+/deliine 数字　IDの数字を入力すると設置者だけが削除することができる。
+
