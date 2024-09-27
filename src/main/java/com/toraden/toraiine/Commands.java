@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class Commands implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
@@ -32,7 +31,8 @@ public class Commands implements CommandExecutor {
                     try {
                         this.showIineList((Player)sender, Integer.parseInt(args[0]));
                     } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        // TODO 例外をログに出すなり将来なにか対応する
+                        // e.printStackTrace();
                         sender.sendMessage("/iinelist 【番号】の形式で入力してください");
                         sender.sendMessage("例: /iinelist 3");
                         return false;
@@ -50,9 +50,29 @@ public class Commands implements CommandExecutor {
                 try {
                     this.teleport((Player)sender, Integer.parseInt(args[0]));
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    // TODO 例外をログに出すなり将来なにか対応する
+                    // e.printStackTrace();
                     sender.sendMessage("/iinetp 【番号】の形式で入力してください");
                     sender.sendMessage("例: /iinetp 3");
+                    return false;
+                }
+                break;
+            case "deliine":
+                if (args.length != 1) {
+                    sender.sendMessage("/deliine 【ID番号】の形式で入力してください");
+                    sender.sendMessage("例: /deliine 3");
+                    return false;
+                }
+                try {
+                    SignDel deliine = new SignDel();
+                    if(deliine.Del((Player)sender, Integer.parseInt(args[0]))){
+                        sender.sendMessage( "iine id "+Integer.parseInt(args[0])+"を削除しました");
+                    }
+                } catch (NumberFormatException e) {
+                    // TODO 例外をログに出すなり将来なにか対応する
+                    // e.printStackTrace();
+                    sender.sendMessage("iineIdの所持権限がないかコマンドが間違っています。/deliine 【番号】の形式で入力してください");
+                    sender.sendMessage("例: /deliine 3");
                     return false;
                 }
         }
@@ -85,7 +105,8 @@ public class Commands implements CommandExecutor {
             message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/iinelist " + endId));
             player.spigot().sendMessage(message);
         } catch (SQLException e) {
-            e.printStackTrace();
+            // TODO 例外をログに出すなり将来なにか対応する
+            // e.printStackTrace();
         }
     }
 
@@ -114,7 +135,8 @@ public class Commands implements CommandExecutor {
             Location loc = new Location(world, x, y, z);
             player.teleport(loc);
         } catch (SQLException e) {
-            e.printStackTrace();
+            // TODO 例外をログに出すなり将来なにか対応する
+            // e.printStackTrace();
         }
     }
 }

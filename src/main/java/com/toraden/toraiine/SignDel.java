@@ -3,8 +3,6 @@ package com.toraden.toraiine;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class SignDell {
-    public boolean Dell(Player player, int id){
+public class SignDel {
+    public boolean Del(Player player, int id){
         DataBase dataBase = DataBase.getInstance(null, null, null, null);
         try {
             Connection con = dataBase.getConnection();
