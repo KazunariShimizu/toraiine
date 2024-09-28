@@ -1,10 +1,10 @@
-name: Build and Release JAR
+name: Build, Tag and Release JAR
 
 on:
   push:
     branches:
       - main  # Trigger on pushes to the main branch
-  workflow_dispatch:  # Allows manual triggering
+#  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
@@ -31,6 +31,27 @@ jobs:
       with:
         name: minecraft-plugin
         path: build/libs/*.jar
+
+    - name: Get the current version and increment tag
+      id: autotag
+      run: |
+        # 'v' から始まるタグのみを取得し、最新のものを選択
+        latest_tag=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+        if [ -z "$latest_tag" ]; then
+          new_tag="v1.0.0"  # 初回のタグが存在しない場合
+        else
+          # vX.Y.Z の形式のタグを自動でインクリメント
+          new_tag=$(echo $latest_tag | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+        fi
+        echo "New tag: $new_tag"
+        echo "::set-output name=new_tag::$new_tag"
+
+    - name: Push new tag to the repository
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag ${{ steps.autotag.outputs.new_tag }}
+        git push origin ${{ steps.autotag.outputs.new_tag }}
 
   release:
     needs: build
