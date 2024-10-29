@@ -2,8 +2,6 @@ name: Build, Tag and Release JAR
 
 on:
   push:
-    branches:
-      - main  # Trigger on pushes to the main branch
     tags:
       - "v*.*"
   workflow_dispatch:  # Allows manual triggering

@@ -73,9 +73,19 @@ plugins フォルダーにjarを入れて起動する。
 
 ゲーム内で看板に右クリックでイイネの回数が増加する。
 
-#### コマンド
+### コマンド
 
-/iinelist 数字　イイネ看板ののリストが表示される。
-/iinetp 数字　IDの数字を入力するとそこにTPされる。
-/deliine 数字　IDの数字を入力すると設置者だけが削除することができる。
+/iinelist 数字　イイネ看板ののリストが表示される。  
+/iinetp 数字　IDの数字を入力するとそこにTPされる。  
+/deliine 数字　IDの数字を入力すると設置者だけが削除することができる。  
 
+## Release
+
+version tagを付与することで自動でbuild, releaseを実行するようにしている。  
+version tagは下記のように付与する
+```bash
+git tag v1.1
+git push origin --tags
+```
+[Release page](https://github.com/KazunariShimizu/toraiine/releases)に既にあるtagは指定しないこと。  
+version tagの形式は `"v*.*"` という形式で指定する。  
