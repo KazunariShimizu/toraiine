@@ -18,7 +18,7 @@ public class DataBase {
         this.dbUrl = dbUrl;
         this.dbUser = dbUser;
         this.dbPassword = dbPassword;
-        connect();
+        this.connect();
     }
 
     // データベースに接続するメソッド
@@ -28,7 +28,7 @@ public class DataBase {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // データベースに接続しconnectionオブジェクトを取得する
-            con = DriverManager.getConnection("jdbc:mysql://%s/%s".formatted(dbUrl, dbName), dbUser, dbPassword);
+            con = DriverManager.getConnection("jdbc:mysql://%s/%s".formatted(this.dbUrl, this.dbName), this.dbUser, this.dbPassword);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -47,7 +47,7 @@ public class DataBase {
         try {
             // 接続が閉じられている場合は再接続
             if (con == null || con.isClosed()) {
-                connect();
+                this.connect();
             }
         } catch (SQLException e) {
             e.printStackTrace();
