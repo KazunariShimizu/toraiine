@@ -47,7 +47,7 @@ public class DataBase {
         try {
             // 接続が閉じられている場合は再接続
             if (con == null || con.isClosed()) {
-                this.connect();
+                instance.connect(); // インスタンスを経由してconnectメソッドを呼び出す
             }
         } catch (SQLException e) {
             e.printStackTrace();
