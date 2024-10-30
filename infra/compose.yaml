@@ -10,6 +10,7 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: password
       MARIADB_DATABASE: iine
+    command: --wait-timeout=60
 
 volumes:
   mariadb:
