@@ -4,17 +4,23 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Objects;
 
 public class SignDel {
-    public boolean Del(Player player, int id){
-        DataBase dataBase = DataBase.getInstance(null, null, null, null);
+    public boolean Del(Player player, int id) throws ClassNotFoundException {
+        String DATABASE_NAME = DataBase.DB_NAME;
+        String URL = "jdbc:mysql://"+DataBase.URL+"/%s".formatted(DATABASE_NAME);
+        //DB接続用・ユーザ定数
+        String USER = DataBase.USER;
+        String PASS = DataBase.PASS;
+        Connection con = null;
+        Statement stmt = null;
         try {
-            Connection con = dataBase.getConnection();
+            //MySQL に接続する
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //データベースに接続
+            con = DriverManager.getConnection(URL, USER, PASS);
 
             PreparedStatement statement = con.prepareStatement("SELECT * FROM iine WHERE id = ? AND user = ? ");
             statement.setInt(1, id);
