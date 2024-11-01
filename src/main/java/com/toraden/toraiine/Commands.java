@@ -9,16 +9,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import static org.bukkit.Bukkit.*;
 
 public class Commands implements CommandExecutor {
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
+    public boolean onCommand( CommandSender sender, Command command,  String label, String[] args) {
         switch (command.getName().toLowerCase()) {
             case "iinelist":
                 if (args.length >= 2) {
@@ -30,7 +27,7 @@ public class Commands implements CommandExecutor {
                 if (args.length == 1) {
                     try {
                         this.showIineList((Player)sender, Integer.parseInt(args[0]));
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException | ClassNotFoundException e) {
                         // TODO 例外をログに出すなり将来なにか対応する
                         // e.printStackTrace();
                         sender.sendMessage("/iinelist 【番号】の形式で入力してください");
@@ -38,7 +35,11 @@ public class Commands implements CommandExecutor {
                         return false;
                     }
                 } else {
-                    this.showIineList((Player) sender, 0);
+                    try {
+                        this.showIineList((Player) sender, 0);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 break;
             case "iinetp":
@@ -55,6 +56,8 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage("/iinetp 【番号】の形式で入力してください");
                     sender.sendMessage("例: /iinetp 3");
                     return false;
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
                 break;
             case "deliine":
@@ -64,8 +67,8 @@ public class Commands implements CommandExecutor {
                     return false;
                 }
                 try {
-                    SignDel deliine = new SignDel();
-                    if(deliine.Del((Player)sender, Integer.parseInt(args[0]))){
+                    SignDel decline = new SignDel();
+                    if(decline.Del((Player)sender, Integer.parseInt(args[0]))){
                         sender.sendMessage( "iine id "+Integer.parseInt(args[0])+"を削除しました");
                     }
                 } catch (NumberFormatException e) {
@@ -74,6 +77,8 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage("iineIdの所持権限がないかコマンドが間違っています。/deliine 【番号】の形式で入力してください");
                     sender.sendMessage("例: /deliine 3");
                     return false;
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
         }
         // コマンド実行成功を意味する
@@ -85,10 +90,20 @@ public class Commands implements CommandExecutor {
      * @param player 「いいね」の一覧を表示するPlayer
      * @param id 「いいね」一覧の何番目から表示するか
      */
-    public void showIineList(Player player, int id) {
-        DataBase dataBase = DataBase.getInstance(null, null, null, null);
-        Connection con = dataBase.getConnection();
+    public void showIineList(Player player, int id) throws ClassNotFoundException {
+        String DATABASE_NAME = DataBase.DB_NAME;
+        String URL = "jdbc:mysql://"+DataBase.URL+"/%s".formatted(DATABASE_NAME);
+        //DB接続用・ユーザ定数
+        String USER = DataBase.USER;
+        String PASS = DataBase.PASS;
+        Connection con = null;
+        Statement stmt = null;
         try {
+            //MySQL に接続する
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //データベースに接続
+            con = DriverManager.getConnection(URL, USER, PASS);
+
             PreparedStatement statement = con.prepareStatement("SELECT * FROM iine WHERE id >= ? LIMIT 10;");
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
@@ -110,10 +125,19 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    public void teleport(Player player, int id) {
-        DataBase dataBase = DataBase.getInstance(null, null, null, null);
-        Connection con = dataBase.getConnection();
+    public void teleport(Player player, int id) throws ClassNotFoundException {
+        String DATABASE_NAME = DataBase.DB_NAME;
+        String URL = "jdbc:mysql://"+DataBase.URL+"/%s".formatted(DATABASE_NAME);
+        //DB接続用・ユーザ定数
+        String USER = DataBase.USER;
+        String PASS = DataBase.PASS;
+        Connection con = null;
+        Statement stmt = null;
         try {
+            //MySQL に接続する
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //データベースに接続
+            con = DriverManager.getConnection(URL, USER, PASS);
             PreparedStatement psSelect = con.prepareStatement("SELECT * FROM iine WHERE id = ?");
             psSelect.setInt(1, id);
             ResultSet rs = psSelect.executeQuery();

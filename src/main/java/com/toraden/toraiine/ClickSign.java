@@ -12,15 +12,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Objects;
 
 public class ClickSign implements Listener {
     @EventHandler
-    public void Iine(PlayerInteractEvent playerInteractEvent) {
+    public void Iine(PlayerInteractEvent playerInteractEvent) throws ClassNotFoundException {
         if (playerInteractEvent.getAction() == Action.LEFT_CLICK_BLOCK ||
                 playerInteractEvent.getAction() == Action.RIGHT_CLICK_AIR ||
                 playerInteractEvent.getAction() == Action.LEFT_CLICK_AIR) {
@@ -42,9 +39,19 @@ public class ClickSign implements Listener {
             return;
         }
 
-        DataBase dataBase = DataBase.getInstance(null, null, null, null);
+        String DATABASE_NAME = DataBase.DB_NAME;
+        String URL = "jdbc:mysql://"+DataBase.URL+"/%s".formatted(DATABASE_NAME);
+
+        //DB接続用・ユーザ定数
+        String USER = DataBase.USER;
+        String PASS = DataBase.PASS;
+        Connection con = null;
+        Statement stmt = null;
         try {
-            Connection con = dataBase.getConnection();
+            //MySQL に接続する
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //データベースに接続
+            con = DriverManager.getConnection(URL, USER, PASS);
 
             PreparedStatement statement = con.prepareStatement("SELECT * FROM iine WHERE x = ? AND y = ? AND z = ?");
             statement.setInt(1, signBoardLocation.getBlockX());

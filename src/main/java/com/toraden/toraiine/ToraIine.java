@@ -16,11 +16,11 @@ public final class ToraIine extends JavaPlugin {
         // もし設定ファイルがまだなければ、デフォルトの設定を保存
         this.saveDefaultConfig();
         // 設定ファイルを読み込む
-        FileConfiguration config = this.getConfig();
-
-        // 唯一1つだけ存在するDataBase instanceをここで生成しつつDB接続設定を渡す
-        DataBase.getInstance(config.getString("DATABASE_NAME"), config.getString("URL"),
-                config.getString("USER"), config.getString("PASS"));
+        FileConfiguration conf=getConfig();
+        DataBase.DB_NAME = conf.getString("DATABASE_NAME");
+        DataBase.URL = conf.getString("URL");
+        DataBase.USER = conf.getString("USER");
+        DataBase.PASS = conf.getString("PASS");
 
         Server server = this.getServer();
         PluginManager pluginManager = server.getPluginManager();
