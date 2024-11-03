@@ -32,7 +32,7 @@ public class DataBase {
     private void connect() {
         try {
             // データベースに接続しconnectionオブジェクトを取得する
-            connection = DriverManager.getConnection("jdbc:mysql://%s/%s?".formatted(this.url, this.name), this.user, this.password);
+            connection = DriverManager.getConnection("jdbc:mysql://%s/%s".formatted(this.url, this.name), this.user, this.password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
