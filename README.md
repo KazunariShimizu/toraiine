@@ -49,7 +49,7 @@ Timeoutが発生してクラッシュする。
 
 #### IntelliJ IDEA
 
-Debug実行は[公式の情報](https://docs.papermc.io/paper/dev/debugging)を参考に設定する。  
+Debug実行は[公式の情報](https://docs.papermc.io/paper/dev/debugging#using-a-remote-debugger)を参考に設定する。  
 `build.gradle`にて、`toraiine-1.0-SNAPSHOT.jar`をbuildして生成した後、自動的に `infra/minecraft_server/plugins/`  
 内にコピーするようにしている為、build後はサーバを再起動するだけで新しいコードが読み込まれる。
 
