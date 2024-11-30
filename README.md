@@ -1,5 +1,5 @@
 [GoogleSearch](https://github.com/KazunariShimizu/toraiine)
-
+<meta name="google-site-verification" content="8Qcd6Xx8HGmBhqXETZZmxJGidnkW2Q1PG_jS2SJyTHM" />
 # toraiine
 
 ## 開発環境
